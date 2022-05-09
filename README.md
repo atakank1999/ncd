@@ -1,7 +1,10 @@
-new-awesome-project
+This [Vue] app was initialized with [create-near-app]
+
+#NCD
 ==================
 
-This [Vue] app was initialized with [create-near-app]
+This project is a very simple weekly appointment scheduler for psychologists. Where all the data is stored on the blockchain. Patients can create a appointment using this application.After they create a new appointment the price for that appointment will taken from their account and will be transferred to the contract. Moreover, the psychologist can view their appointments for the current week.
+
 
 
 Quick Start
@@ -26,76 +29,153 @@ Exploring The Code
    more info.
 2. The frontend code lives in the `/src` folder. `/src/main.js` is a great
    place to start exploring.
-3. Tests: there are different kinds of tests for the frontend and the smart
-   contract. See `contract/README` for info about how it's tested. The frontend
-   code gets tested with [jest]. You can run both of these at once with `yarn
-   run test`.
+   
+Functions
+=========
+
+psyGetOne
+---------
+
+- Takes _id_ as a parameter
+- Given ID must be present on the blockhain.
+- Returns an Psychologist object with given ID.
+
+**Example call:**
+`near call $CONTRACT psyGetOne '{"id": '$PSYID'}' --accountId $NEAR_ACCOUNT`
+
+psyCreate
+---------
+
+- Takes _name_ and _price_ as a parameter
+- returns the newly created Psychologist objct.
+
+**Example call:**
+`near call $CONTRACT psyCreate '{"name": '$PSYNAME',"price":$PSYPRICE}' --accountId $NEAR_ACCOUNT`
+
+## updatePsy
+
+- Takes _id_, _name_,and _price_ as a parameter.
+- Fetches the Psychologist with given ID updates it with given parameters and stores it on the blockchain.
+- returns updated Psychologist objetc
+
+**Example call:**
+`near call $CONTRACT updatePsy '{"id": '$PSYID',"name":"$PSYNAME","price":$PSYPRICE}' --accountId $NEAR_ACCOUNT`
+
+## deletePsy
+
+- Takes no parameters
+- Deletes the Psychologist from blockchain with the id of the caller
+
+**Example call:**
+`near call $CONTRACT deletePsy --accountId $NEAR_ACCOUNT`
+
+## getAllPsy
+
+- Takes no parameters.
+- Returns all Psychologist stored on the blockchain.
+
+**Example call:**
+`near call $CONTRACT getAllPsy --accountId $NEAR_ACCOUNT`
+
+## patGetOne
+
+- Takes _id_ as a parameter
+- returns Patient with given id.
+
+**Example call:**
+`near call $CONTRACT patGetOne '{"id": '$PATID'}' --accountId $NEAR_ACCOUNT`
+
+## patCreate
+
+- Takes _name_ as a parameter
+- Creates a new patient with given name and stores it on the blockchain.
+- returns newly created patient object.
+
+**Example call:**
+`near call $CONTRACT patCreate '{"name":"$PATNAME"}' --accountId $NEAR_ACCOUNT`
+
+## updatePat 
+
+- Takes _id_ and _name_ as a parameter.
+- Updates name of the patient with given id, and stores on the blockchain.
+- returns updated Patient object.
+
+**Example call:**
+`near call $CONTRACT patUpdate '{"id":"$PATID","name":"$PATNAME"}' --accountId $NEAR_ACCOUNT`
+
+## deletePat
+
+- Takes no parameters
+- Deletes the Patient from blockchain with the id of the caller
+
+**Example call:**
+`near call $CONTRACT deletePat --accountId $NEAR_ACCOUNT`
+
+## patAppGetAll
+
+- Takes _patID_ as a parameter.
+- returns a map of appointmentid and appointments (appointmentId -> Appointment) of the given patient
+
+**Example call:**
+`near call $CONTRACT patAppGetAll '{"id":"$PATID"}' --accountId $NEAR_ACCOUNT`
+
+## psyAppGetAll
+
+- Takes _psyID_ as a parameter.
+- returns a map of appointmentid and appointments (appointmentId -> Appointment) of the given psychologist
+
+**Example call:**
+`near call $CONTRACT psyAppGetAll '{"id":"$PATID"}' --accountId $NEAR_ACCOUNT`
+
+## appCreate
+
+- Takes _day_, _hour_, _psyId_, and _patId_ as parameters.
+- Creates a new Appointment object and stores it on the blockchain.
+- _day_ must be between 1 and 5 
+- _hour_ must be between 1 and 9
+- returns newly created appointment.
+
+**Example call:**
+`near call $CONTRACT appCreate '{"day":$PATDAY,"hour":$PATHOUR,"psyId":"$PSYID","patId":"$PATID"}' --accountId $NEAR_ACCOUNT`
+
+## updateApp
+
+- Takes _id_, _day_, _hour_, and _psyId_ as parameters.
+- The id of the caller is used as the _patId_
+- fetched the Appointment with given id from the blockchain.
+- updates it and stores it back to the blockchain.
+-  _day_ must be between 1 and 5 
+- _hour_ must be between 1 and 9
+- returns updated appointment.
+
+**Example call:**
+`near call $CONTRACT updateApp '{"id":"$APPID","day":$PATDAY,"hour":$PATHOUR,"psyId":"$PSYID"}' --accountId $NEAR_ACCOUNT`
+
+## deleteApp
+
+- Takes _id_ and _psyId_ as parameters
+- uses caller id as _patId_
+- deletes appointment with given ID from the blockchain.
+
+**Example call:**
+`near call $CONTRACT deleteApp '{"id":"$APPID",psyId":"$PSYID"}' --accountId $NEAR_ACCOUNT`
+
+# Set the contract name in code
+
+Modify the line in `src/config.js` that sets the account name of the contract.
+
+    const CONTRACT_NAME = process.env.CONTRACT_NAME || 'near-blank-project.YOUR-NAME.testnet'
 
 
-Deploy
-======
+# Front-end
+The front-end for this project was build using Vue as a framework.
 
-Every smart contract in NEAR has its [own associated account][NEAR accounts]. When you run `yarn dev`, your smart contract gets deployed to the live NEAR TestNet with a throwaway account. When you're ready to make it permanent, here's how.
+In order to run the front-end locally you have to run the command:
 
-
-Step 0: Install near-cli (optional)
--------------------------------------
-
-[near-cli] is a command line interface (CLI) for interacting with the NEAR blockchain. It was installed to the local `node_modules` folder when you ran `yarn install`, but for best ergonomics you may want to install it globally:
-
-    yarn install --global near-cli
-
-Or, if you'd rather use the locally-installed version, you can prefix all `near` commands with `npx`
-
-Ensure that it's installed with `near --version` (or `npx near --version`)
+    yarn dev
 
 
-Step 1: Create an account for the contract
-------------------------------------------
+Loom Video 
+==================
 
-Each account on NEAR can have at most one contract deployed to it. If you've already created an account such as `your-name.testnet`, you can deploy your contract to `new-awesome-project.your-name.testnet`. Assuming you've already created an account on [NEAR Wallet], here's how to create `new-awesome-project.your-name.testnet`:
-
-1. Authorize NEAR CLI, following the commands it gives you:
-
-      near login
-
-2. Create a subaccount (replace `YOUR-NAME` below with your actual account name):
-
-      near create-account new-awesome-project.YOUR-NAME.testnet --masterAccount YOUR-NAME.testnet
-
-
-Step 2: set contract name in code
----------------------------------
-
-Modify the line in `src/config.js` that sets the account name of the contract. Set it to the account id you used above.
-
-    const CONTRACT_NAME = process.env.CONTRACT_NAME || 'new-awesome-project.YOUR-NAME.testnet'
-
-
-Step 3: deploy!
----------------
-
-One command:
-
-    yarn deploy
-
-As you can see in `package.json`, this does two things:
-
-1. builds & deploys smart contract to NEAR TestNet
-2. builds & deploys frontend code to GitHub using [gh-pages]. This will only work if the project already has a repository set up on GitHub. Feel free to modify the `deploy` script in `package.json` to deploy elsewhere.
-
-
-Troubleshooting
-===============
-
-On Windows, if you're seeing an error containing `EPERM` it may be related to spaces in your path. Please see [this issue](https://github.com/zkat/npx/issues/209) for more details.
-
-
-  [Vue]: https://vuejs.org/
-  [create-near-app]: https://github.com/near/create-near-app
-  [Node.js]: https://nodejs.org/en/download/package-manager/
-  [jest]: https://jestjs.io/
-  [NEAR accounts]: https://docs.near.org/docs/concepts/account
-  [NEAR Wallet]: https://wallet.testnet.near.org/
-  [near-cli]: https://github.com/near/near-cli
-  [gh-pages]: https://github.com/tschaub/gh-pages
+https://www.loom.com/share/6ea5cae5b2214ba5b8410db4c50aa870
